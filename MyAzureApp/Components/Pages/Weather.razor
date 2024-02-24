@@ -1,0 +1,58 @@
+﻿@page "/weather"
+@attribute [StreamRendering]
+@inject HttpClient Http
+@inject IHttpClientFactory HttpClientFactory
+
+<PageTitle>Weather</PageTitle>
+
+<h1>Weather</h1>
+
+<p>This component demonstrates showing data.</p>
+
+@if (_forecasts == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <FluentDataGrid Id="weathergrid" Items=@_forecasts GridTemplateColumns="1fr 1fr 1fr 2fr" TGridItem=WeatherForecast>
+        <PropertyColumn Title="Date" Property="@(c => c!.Date)" Sortable="true" Align=Align.Start />
+        <PropertyColumn Title="Temp. (C)" Property="@(c => c!.TemperatureC)" Sortable="true" Align=Align.Center />
+        <PropertyColumn Title="Temp. (F)" Property="@(c => c!.TemperatureF)" Sortable="true" Align=Align.Center />
+        <PropertyColumn Title="Summary" Property="@(c => c!.Summary)" Sortable="true" Align=Align.End />
+    </FluentDataGrid>
+}
+
+@code {
+    private IQueryable<WeatherForecast>? _forecasts;
+    private HttpClient? _client;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _client = HttpClientFactory.CreateClient("myazureapp-api");
+
+        // Simulate asynchronous loading to demonstrate streaming rendering
+        await Task.Delay(500);
+
+        try
+        {
+            var result = await _client.GetFromJsonAsync<List<WeatherForecast>>("/weatherforecast");
+
+            _forecasts = result?.AsQueryable() ?? Enumerable.Empty<WeatherForecast>().AsQueryable();
+        }
+        catch (Exception ex)
+        {
+            // Handle the exception
+            Console.WriteLine($"An error occurred: {ex.Message}");
+        }
+
+    }
+
+    private class WeatherForecast
+    {
+        public DateOnly Date { get; set; }
+        public int TemperatureC { get; set; }
+        public string? Summary { get; set; }
+        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    }
+}
