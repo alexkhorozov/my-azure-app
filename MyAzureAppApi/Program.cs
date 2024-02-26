@@ -41,7 +41,7 @@ app.MapGet("/weatherforecast", () =>
 
 app.MapPost("/upload", async (IFormFile[] files) =>
 {
-    var blobContainerConnectionString = "DefaultEndpointsProtocol=https;AccountName=stcloudshare;AccountKey=UfFCKdntQ9wirZE7wl1KkBGiLm/qJCdsVzC18yXDNH/g/tvLNkBj5TBba8ZA5nZuyMPXUsleu05a+AStcWwh8w==;EndpointSuffix=core.windows.net";
+    var blobContainerConnectionString = builder.Configuration["BlobContainerConnectionString"];
     // Create a BlobServiceClient object which will be used to create a container client
     BlobServiceClient blobServiceClient = new BlobServiceClient(blobContainerConnectionString);
 
